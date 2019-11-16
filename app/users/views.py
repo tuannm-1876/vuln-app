@@ -19,17 +19,16 @@ def index():
 
 @user_module.route('/signin', methods=['GET', 'POST'])
 def login():
-    if g.user is not None and g.user.is_authenticated():
-        return redirect(url_for('index'))
-
     if request.method == 'GET':
         return render_template('signin.html')
     if request.method == 'POST':
         email = request.form['inputEmail']
         password = request.form['inputPassword']
         success, msg = check_user(email, password)
+        print (success)
         if success:
-            login_user(email)
+            user = Users.query.filter_by(email=email).first()
+            print (login_user(user))
     return render_template('signin.html', error=msg)
 
 

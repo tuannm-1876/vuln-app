@@ -13,6 +13,7 @@ class Users(db.Model):
     avatar = db.Column(db.String(255), default='/img/avatar/default.jpg')
     isAdmin = db.Column(db.Integer, default=USER.USER, nullable=False)
     name = db.Column(db.String(255), nullable=False)
+    is_active = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.datetime.now())
     updated_at = db.Column(db.DateTime, default=datetime.datetime.now(), onupdate=datetime.datetime.now)
 
