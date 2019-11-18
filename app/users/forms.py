@@ -38,33 +38,13 @@ class SignupForm(Form):
         if not Form.validate(self):
             return False
 
-        user = User.query.filter_by(username=self.username.data).first()
+        user = Users.query.filter_by(username=self.username.data).first()
         if user:
             self.username.errors.append('That username is already taken.')
             return False
-        user_email = User.query.filter_by(email=self.email.data).first()
+        user_email = Users.query.filter_by(email=self.email.data).first()
         if user_email:
             self.username.errors.append('That email is already taken.')
-            return False
-
-        return True
-
-
-class ChangePasswordForm(Form):
-    new_password = PasswordField('Password', [
-        validators.Required('Please enter new password.'),
-        validators.Length(
-            min=6, message='Passwords is at least 6 characters.'),
-        validators.EqualTo('new_confirm', message='Passwords must match')
-    ])
-    new_confirm = PasswordField('Repeat Password')
-    submit = SubmitField('Change password')
-
-    def __init__(self, *args, **kwargs):
-        Form.__init__(self, *args, **kwargs)
-
-    def validate(self):
-        if not Form.validate(self):
             return False
 
         return True
@@ -75,12 +55,12 @@ class LoginForm(Form):
         validators.Required('Please enter your email.'),
         validators.Length(max=45, message='Email is at most 45 characters.'),
     ])
-    password = PasswordField('Password', [
+    password = PasswordField('password', [
         validators.Required('Please enter a password.'),
         validators.Length(
             min=6, message='Passwords is at least 6 characters.'),
     ])
-    submit = SubmitField('Sign In')
+    submit = SubmitField('login')
 
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)
@@ -99,46 +79,3 @@ class LoginForm(Form):
         else:
             self.password.errors.append('Invalid e-mail or password')
             return False
-
-
-class SendForgotPasswordForm(Form):
-    email = TextField('Email',  [
-        validators.Length(max=40, message='email is at most 40 characters.'),
-        validators.Required('Please enter your email address.'),
-        validators.Email('Please enter a valid email address.')
-    ])
-    submit = SubmitField('Send Forgot Password Email')
-
-    def __init__(self, *args, **kwargs):
-        Form.__init__(self, *args, **kwargs)
-
-    def validate(self):
-        if not Form.validate(self):
-            return False
-
-        user = User.query.filter_by(email=self.email.data).first()
-        if not user:
-            self.email.errors.append('This email is not registered yet')
-            return False
-        else:
-            return True
-
-
-class ResetPasswordForm(Form):
-    new_password = PasswordField('Password', [
-        validators.Required('Please enter new password.'),
-        validators.Length(
-            min=6, message='Passwords is at least 6 characters.'),
-        validators.EqualTo('new_confirm', message='Passwords must match')
-    ])
-    new_confirm = PasswordField('Repeat Password')
-    submit = SubmitField('Reset password')
-
-    def __init__(self, *args, **kwargs):
-        Form.__init__(self, *args, **kwargs)
-
-    def validate(self):
-        if not Form.validate(self):
-            return False
-
-        return True

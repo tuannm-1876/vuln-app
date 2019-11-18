@@ -29,3 +29,8 @@ class Users(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password, password)
 
+    def get_id(self):
+        return (self.id)
+
+    def is_authenticated(self):
+        return True
