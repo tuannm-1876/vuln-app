@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, request, Blueprint, flash, g
+from flask import render_template, redirect, url_for, request, Blueprint, flash, g, make_response
 from flask_login import login_user, logout_user, login_required, current_user
 from app.users.forms import LoginForm, SignupForm
 from app.users.models import Users
@@ -30,7 +30,6 @@ def login():
     if g.user is not None and g.user.is_authenticated:
         return redirect(url_for('index'))
     form = LoginForm()
-    print(form.validate_on_submit())
     if form.validate_on_submit():
         user = Users.query.filter_by(email=form.email.data).first()
         login_user(user)
@@ -38,21 +37,27 @@ def login():
         return redirect(request.args.get('next') or url_for('index'))
     return render_template('signin.html', form=form)
 
+@user_module.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Logged out successfully', category='success')
+    resp = make_response(redirect(url_for('index')))
+    resp.delete_cookie('session')
+    return redirect(url_for('index'))
 
 @user_module.route('/signup', methods=['GET', 'POST'])
 def signup():
-    if g.user is not None and g.user.is_authenticated():
+    if g.user is not None and g.user.is_authenticated:
         return redirect(url_for('index'))
-    if request.method == 'GET':
-        return render_template('signup.html')
-    if request.method == 'POST':
-        email = request.form['email']
-        name = request.form['name']
-        username = request.form['username']
-        password = request.form['password']
-        repassword = request.form['repassword']
-        msg = add_user(email, name, username, password, repassword)
-    return render_template('signup.html', error=msg)
+    form = SignupForm()
+    if form.validate_on_submit():
+        new_user = Users(form.username.data, form.name.data, form.email.data, form.password.data)
+        db.session.add(new_user)
+        db.session.commit()
+        flash('Signup in successfully.', category='success')
+        return redirect(url_for('users.login'))
+    return render_template('signup.html', form=form)
 
 
 def add_user(email, name, username, password, repassword):
