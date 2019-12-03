@@ -13,14 +13,19 @@ class UserForm(ModelForm):
 
 
 class SignupForm(Form):
+    email = TextField('Email address',  [
+        validators.Required('Please enter your email address.'),
+        validators.Email('Please enter your email address.')
+    ])
     username = TextField('Username',  [
         validators.Required('Please enter your username.'),
         validators.Length(
             max=30, message='Username is at most 30 characters.'),
     ])
-    email = TextField('Email',  [
-        validators.Required('Please enter your email address.'),
-        validators.Email('Please enter your email address.')
+    name = TextField('Name',  [
+        validators.Required('Please enter your name.'),
+        validators.Length(
+            max=30, message='Name is at most 30 characters.'),
     ])
     password = PasswordField('Password', [
         validators.Required('Please enter a password.'),
@@ -28,8 +33,8 @@ class SignupForm(Form):
             min=6, message='Passwords is at least 6 characters.'),
         validators.EqualTo('confirm', message='Passwords must match')
     ])
-    confirm = PasswordField('Repeat Password')
-    submit = SubmitField('Create account')
+    confirm = PasswordField('Confirm Password')
+    submit = SubmitField('Sign up')
 
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)
