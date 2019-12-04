@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, request, Blueprint, flash, g, make_response
 from flask_login import login_user, logout_user, login_required, current_user
 from app.users.forms import LoginForm, SignupForm
-from app.users.models import Users
+from app.users.models import Users, Posts, Likes
 from flask_sqlalchemy import SQLAlchemy
 from app import app, db, lm
 user_module = Blueprint('users', __name__)
@@ -60,27 +60,37 @@ def signup():
     return render_template('signup.html', form=form)
 
 
-def add_user(email, name, username, password, repassword):
-    user = Users.query.filter_by(username=username).first()
-    if user:
-        return (False, 'User already exists')
-    if len(password) < 6:
-        return (False, 'Password too short')
-    if password != repassword:
-        return (False, 'Password do not match')
-    new_user = Users(email=email,
-                     name=name,
-                     username=username,
-                     password=password)
-    db.session.add(new_user)
-    db.session.commit()
-
-
-def check_user(email, password):
-    user = Users.query.filter_by(email=email).first()
-    if not user:
-        return (False, 'User does not exist')
-    if user.check_password(password):
-        return (True, 'Success')
+@user_module.route('/profile/<username>', methods=['GET', 'POST'])
+def profile(username=None):
+    if g.user is not None and g.user.is_authenticated:
+        user = Users.query.filter_by(username=username).first()
+        if user == None:
+            user = Users.query.get_or_404(username)
+            return render_template('profile.html', user=user)
+        print (user)
+        posts = Posts.query.filter_by(user_id=user.id).all()
+        # print (post)
+        liked = {}
+        for post in posts:
+            liked[post.id] = len(Likes.query.filter_by(post_id=post.id).all())
+        return render_template('profile.html', user=user, guser=g.user, posts=posts, liked=liked)
     else:
-        return (False, 'Incorrect password')
+        return redirect(url_for('users.login'))
+
+
+@user_module.route('/like/<id_post>', methods=['GET', 'POST'])
+def like_post(id_post=None):
+    if g.user is not None and g.user.is_authenticated:
+        check = Likes.query.filter_by(post_id=id_post, user_id=g.user.id).first()
+        print (check)
+        if not check:
+            like = Likes(id_post, g.user.id)
+            db.session.add(like)
+            db.session.commit()
+            return 'Liked'
+        else:
+            db.session.delete(check)
+            db.session.commit()
+            return 'Unliked'
+    else:
+        return redirect(url_for('users.login'))

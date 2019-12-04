@@ -84,3 +84,4 @@ class LoginForm(Form):
         else:
             self.password.errors.append('Invalid e-mail or password')
             return False
+
