@@ -53,8 +53,20 @@
     </style>
 {% endblock %}
 {% block body %}
-    <form class="form-signin" method="POST">
+    <form class="form-signin" method="POST" action="{{ url_for('users.signup') }}">
         <img class="mb-4" src="https://appdata.chatwork.com/icon/1524/1524467.png" alt="" width="72" height="72">
+        {% for message in form.username.errors %}
+        <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+        {% for message in form.email.errors %}
+        <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+        {% for message in form.password.errors %}
+        <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+        {% for message in form.name.errors %}
+        <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
         <h1 class="h3 mb-3 font-weight-normal">Please sign up</h1>
         <label for="inputEmail" class="sr-only">Email address</label>
         <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required
