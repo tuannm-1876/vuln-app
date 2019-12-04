@@ -68,20 +68,29 @@ def profile(username=None):
             user = Users.query.get_or_404(username)
             return render_template('profile.html', user=user)
         print (user)
-        numberlike = Likes.get_numberLikes()
-        post = Posts.query.filter_by(user_id=user.id).all()
-        print (post)
-        return render_template('profile.html', user=user, guser=g.user, post=post, numberlike=numberlike)
+        posts = Posts.query.filter_by(user_id=user.id).all()
+        # print (post)
+        liked = {}
+        for post in posts:
+            liked[post.id] = len(Likes.query.filter_by(post_id=post.id).all())
+        return render_template('profile.html', user=user, guser=g.user, posts=posts, liked=liked)
     else:
         return redirect(url_for('users.login'))
 
 
-@user_module.route('/like/<id_post>', methods=['POST'])
+@user_module.route('/like/<id_post>', methods=['GET', 'POST'])
 def like_post(id_post=None):
     if g.user is not None and g.user.is_authenticated:
-        like = Likes.query.filter_by(user_id=id_post).all()
-        post = Posts.query.filter_by(user_id=user.id).all()
-        print ('like: ',like)
-        return render_template('profile.html', guser=g.user, like=like, post=post)
+        check = Likes.query.filter_by(post_id=id_post, user_id=g.user.id).first()
+        print (check)
+        if not check:
+            like = Likes(id_post, g.user.id)
+            db.session.add(like)
+            db.session.commit()
+            return 'Liked'
+        else:
+            db.session.delete(check)
+            db.session.commit()
+            return 'Unliked'
     else:
         return redirect(url_for('users.login'))

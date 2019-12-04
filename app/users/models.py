@@ -70,6 +70,3 @@ class Likes(db.Model):
 
     def get_id(self):
         return (self.id)
-    def get_numberLikes(self, post_id):
-        numberlikes = Likes.query.filter_by(post_id=post_id).all()
-        return len(numberlikes)
