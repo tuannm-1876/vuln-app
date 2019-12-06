@@ -22,27 +22,35 @@
                     <a class="p-2 text-dark" href="#">{{ user.name }}</a>
                     {% if user.username!=guser.username %}
                     <div>
-                        <a class="btn btn-outline-primary" href="#">Follow</a>
+                        {% if follow.status == 0 %}
+                        <a class="btn btn-outline-primary btn-follow" href="#">Wait</a>
+                        {% endif %}
+                        {% if follow.status == 1 %}
+                        <a class="btn btn-outline-primary btn-follow" href="#">Followed</a>
+                        {% endif %}
+                        {% if follow == None %}
+                        <a class="btn btn-outline-primary btn-follow"
+                            href="{{ url_for('users.follow', username=user.username) }}">Follow</a>
+                        {% endif %}
                     </div>
                     {% endif %}
                 </div>
                 {% if user.username==guser.username %}
                 <div class="d-flex flex-column my-10 px-2 pb-4 bg-white rounded shadow-sm text-center">
                     <h5 class="mb-5">Follow Requests</h5>
-                    <div class="d-flex flex-row mb-2 justify-content-between">
-                        <div class="text-left col-6">Tuan @tuan</div>
+                    {% if list_username_follow %}
+                    {% for i in list_username_follow %}
+                    <div class="{{list_username_follow[i].username}} d-flex flex-row mb-2 justify-content-between">
+                        <div class="text-left col-6">{{ list_username_follow[i].name }}
+                            @{{ list_username_follow[i].username }}</div>
                         <div class="col-6 d-flex flex-row justify-content-end">
-                            <a class="btn-sm mr-2 btn-primary" href="#">Approve</a>
+                            <a class="btn-sm mr-2 btn-primary btn-approve"
+                                href="{{ url_for('users.confirm_follow', username=list_username_follow[i].username) }}">Approve</a>
                             <a class="btn-sm btn-danger" href="#">Reject</a>
                         </div>
                     </div>
-                    <div class="d-flex flex-row mb-2 justify-content-between">
-                        <div class="text-left col-6">Tuan @tuan</div>
-                        <div class="col-6 d-flex flex-row justify-content-end">
-                            <a class="btn-sm mr-2 btn-primary" href="#">Approve</a>
-                            <a class="btn-sm btn-danger" href="#">Reject</a>
-                        </div>
-                    </div>
+                    {% endfor %}
+                    {% endif %}
                 </div>
                 {% endif %}
             </div>
@@ -61,7 +69,7 @@
                         <small class="ml-2">
                             <a href="#" class="btn-like" id="{{ post.id }}">{{ liked[post.id] }} Likes</a>
                             <br>
-                            <a href="#" class="text-muted">Report</a>
+                            <a href="{{ url_for('users.report', post_id=post.id)}}" class="text-muted">Report</a>
                         </small>
                     </div>
                     {% endfor %}
@@ -73,17 +81,43 @@
         </div>
     </div>
 </main>
+<!-- Like -->
 <script>
     window.onload = () => {
         $('.btn-like').click(e => {
             e.preventDefault();
             $.ajax({
                 url: `/users/like/${e.target.id}`,
-                    success: function (result) {
+                success: function (result) {
                     $(e.target).html(result);
                 }
             });
         });
+        $('.btn-follow').click(e => {
+            e.preventDefault();
+            $.ajax({
+                url: `/users/follow/{{ user.username }}`,
+                success: function (result) {
+                    $(e.target).html(result);
+                }
+            });
+        });
+        {% if list_username_follow %}
+        {% for i in list_username_follow %}
+        $('.{{list_username_follow[i].username}}').click(e => {
+            e.preventDefault();
+            $.ajax({
+                
+                url: `/users/follow/{{ list_username_follow[i].username }}/approve`,
+                success: function (result) {
+                    alert('Chấp nhận kết bạn thành công');
+                    $('.{{list_username_follow[i].username}}').remove();
+                }
+                
+            });
+        });
+        {% endfor %}
+        {% endif %}
     }
 </script>
 {% endblock %}
