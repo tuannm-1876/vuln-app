@@ -70,3 +70,53 @@ class Likes(db.Model):
 
     def get_id(self):
         return (self.id)
+
+class Follow(db.Model):
+    __tablename__ = 'user_friends'
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'users.id'), nullable=False)
+    user_friend_id = db.Column(db.Integer, db.ForeignKey(
+        'users.id'), nullable=False)
+    status = db.Column(db.Integer, default=USER.NOTISFRIEND)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now())
+    updated_at = db.Column(
+        db.DateTime, default=datetime.datetime.now(), onupdate=datetime.datetime.now)
+
+    def __init__(self, user_id, user_friend_id):
+        self.user_id = user_id
+        self.user_friend_id = user_friend_id
+    def approve(self, user_id, user_friend_id, status):
+        self.user_id = user_id
+        self.user_friend_id = user_friend_id
+        self.status = status
+    
+class Content_report(db.Model):
+    __tablename__ = 'content_report'
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now())
+    updated_at = db.Column(
+        db.DateTime, default=datetime.datetime.now(), onupdate=datetime.datetime.now)
+
+    def __init__(self, title):
+        self.title = title
+
+class Report(db.Model):
+    __tablename__ = 'report'
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey(
+        'posts.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'users.id'), nullable=False)
+    content_id = db.Column(db.Integer, db.ForeignKey(
+        'content_report.id'), nullable=False)
+    status = db.Column(db.Integer, default=USER.NOPROCESSED)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now())
+    updated_at = db.Column(
+        db.DateTime, default=datetime.datetime.now(), onupdate=datetime.datetime.now)
+
+    def __init__(self, post_id, user_id, content_id):
+        self.post_id = post_id
+        self.user_id = user_id
+        self.content_id = content_id

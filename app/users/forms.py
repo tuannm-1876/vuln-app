@@ -1,6 +1,6 @@
 from flask_wtf import Form
-from wtforms import TextField, SubmitField, validators, PasswordField, HiddenField
-from app.users.models import Users
+from wtforms import TextField, SubmitField, validators, PasswordField, HiddenField, IntegerField
+from app.users.models import Users, Content_report
 from wtforms_alchemy import model_form_factory
 
 ModelForm = model_form_factory(Form)
@@ -73,15 +73,30 @@ class LoginForm(Form):
     def validate(self):
         if not Form.validate(self):
             return False
-
         user = Users.query.filter_by(email=self.email.data).first()
         if user:
             if not user.check_password(self.password.data):
-                self.password.errors.append('Wrong password')
+                self.password.errors.append('Invalid e-mail or password')
                 return False
             else:
                 return True
         else:
             self.password.errors.append('Invalid e-mail or password')
             return False
+class ReportForm(Form):
+    report = IntegerField('',  [
+        validators.NumberRange(min=1, max=3, message='Something went wrong')
+    ])
+    submit = SubmitField('report')
 
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+
+    def validate(self):
+        if not Form.validate(self):
+            return False
+        content_report = Content_report.query.filter_by(id=self.report.data).first()
+        if content_report:
+            return True
+        else:
+            return False
