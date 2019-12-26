@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, request, Blueprint, flash, g, make_response
 from flask_login import login_user, logout_user, login_required, current_user
-from app.users.forms import LoginForm, SignupForm, ReportForm, PostStatus
+from app.users.forms import LoginForm, SignupForm, ReportForm, PostStatus, Content_report
 from app.users.models import Users, Posts, Likes, Follow, Report
 from flask_sqlalchemy import SQLAlchemy
 from app import app, db, lm

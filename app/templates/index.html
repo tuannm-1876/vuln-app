@@ -35,7 +35,8 @@
       <img class="rounded-circle mr-2" src="{{ url_for('static', filename=post.avatar)}}" alt=""
         style="height: 32px;">
       <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
-        <span class="d-block text-gray-dark"><strong>{{ post.name }}</strong><span>&nbsp;@{{ post.username }}</span></span>
+        <span class="d-block text-gray-dark"><strong>{{ post.name }}</strong>&nbsp;@<a
+            href="{{ url_for('users.profile', username=post.username)}}"><span>{{ post.username }}</span></a></span>
         {% if post[0].isPrivate == 1 and post.username != guser.username and checkfriend[post.id] == None %}
           <span style="color: red;">Post Private<span>
         {% else %}
