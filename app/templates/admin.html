@@ -29,6 +29,7 @@
     </thead>
     <tbody>
       {% for report in reports %}
+      {% if report[0].status == 0 %}
       <tr>
         <th scope="row">{{ report[0].id }}</th>
         <td>{{ report.content }}</td>
@@ -39,10 +40,19 @@
           {{ report.username }}
         </td>
         <td>
-          <a href="#">Approve</a>
-          <a class="text-danger" href="#">Reject</a>
+          <form class="checkreport" method="POST">
+            <input hidden value="{{ report[0].id }}" name="id_report"></input>
+            {{ form.csrf_token }}
+            <button class="btn btn-sm btn-primary btn-block" type="submit" name="submit" value="approve">Approve</button>
+          </form>
+          <form class="checkreport" method="POST">
+            <input hidden value="{{ report[0].id }}" name="id_report"></input>
+            {{ form.csrf_token }}
+            <button class="btn btn-sm btn-danger btn-block" type="submit" name="submit" value="reject">Reject</button>
+          </form>
         </td>
       </tr>
+      {% endif %}
       {% endfor %}
     </tbody>
   </table>

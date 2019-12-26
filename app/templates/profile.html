@@ -63,8 +63,10 @@
                             style="height: 32px;">
                         <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
                             <span class="d-block text-gray-dark"><strong>{{ user.name }}</strong><span>&nbsp;@{{ user.username }}</span></span>
-                            {% if post.isPrivate == 1 and follow.status != 1 %}
-                                <span style="color: red;">Post Private<span>
+                            {% if checkreport[post.id] != None %}
+                                <span style="color: red;">Post Spam</span>
+                            {% elif post.isPrivate == 1 and follow.status != 1 %}
+                                <span style="color: yellowgreen;">Post Private<span>
                             {% else %}
                                 {{ post.content }}
                             {% endif %}

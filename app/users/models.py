@@ -120,3 +120,6 @@ class Report(db.Model):
         self.post_id = post_id
         self.user_id = user_id
         self.content_id = content_id
+
+    def update(self, status):
+        self.status = status

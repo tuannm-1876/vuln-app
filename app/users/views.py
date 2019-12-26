@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, request, Blueprint, flash, g, make_response
 from flask_login import login_user, logout_user, login_required, current_user
-from app.users.forms import LoginForm, SignupForm, ReportForm, PostStatus, Content_report
+from app.users.forms import LoginForm, SignupForm, ReportForm, PostStatus, Content_report, CheckReport
 from app.users.models import Users, Posts, Likes, Follow, Report
 from flask_sqlalchemy import SQLAlchemy
 from app import app, db, lm
@@ -34,8 +34,12 @@ def index():
             userid = follow[0].user_id
             if userid != g.user.id:
                 checkfriend[userid] = Follow.query.filter_by(user_id=g.user.id, user_friend_id=userid).first()
-                print (checkfriend[userid])
-        return render_template('index.html', usersList=usersList, guser = g.user, form=form, liked=liked, checkfriend=checkfriend)
+        checkreport = {}
+        for post in posts:
+            postid = post.id
+            checkreport[postid] = Report.query.filter_by(
+                    post_id=postid, status=1).first()
+        return render_template('index.html', usersList=usersList, guser=g.user, form=form, liked=liked, checkfriend=checkfriend, checkreport=checkreport)
     else:
         return render_template('index.html')
 
@@ -108,7 +112,12 @@ def profile(username=None):
         liked = {}
         for post in posts:
             liked[post.id] = len(Likes.query.filter_by(post_id=post.id).all())
-        return render_template('profile.html', user=user, guser=g.user, posts=posts, liked=liked, follow=follow, list_username_follow=list_username_follow)
+        checkreport = {}
+        for post in posts:
+            postid = post.id
+            checkreport[postid] = Report.query.filter_by(
+                post_id=postid, status=1).first()
+        return render_template('profile.html', user=user, guser=g.user, posts=posts, liked=liked, follow=follow, list_username_follow=list_username_follow, checkreport=checkreport)
     else:
         return redirect(url_for('users.login'))
 
@@ -171,14 +180,36 @@ def report(post_id=None):
     if g.user is not None and g.user.is_authenticated:
         form = ReportForm()
         if form.validate_on_submit():
-            check = Report.query.filter_by(user_id = g.user.id, post_id = post_id)
+            check = Report.query.filter_by(user_id = g.user.id, post_id = post_id).first()
             if check:
                 return 'Da report truoc do'
             else:
+                print (form.report.data)
                 report_post = Report(post_id, g.user.id, form.report.data)
+                print (report_post)
                 db.session.add(report_post)
                 db.session.commit()
                 return redirect(url_for('index'))
         return render_template('report.html', guser=g.user, form=form)
     else:
         return redirect(url_for('users.login'))
+
+
+@user_module.route('/admin', methods=['GET', 'POST'])
+def admin():
+    if g.user is not None and g.user.is_authenticated and g.user.isAdmin == 1:
+        form = CheckReport()
+        reports = Report.query.join(Users, Users.id == Report.user_id).join(Content_report, Content_report.id == Report.content_id).join(Posts, Posts.id == Report.post_id).add_columns(
+            Users.username, Users.id, Content_report.title, Posts.content).order_by(Posts.updated_at.desc()).all()
+        if form.validate_on_submit():
+            if form.submit.data == 'approve':
+                confirmreport = Report.query.filter_by(id=form.id_report.data).first()
+                confirmreport.status = 1
+                db.session.commit()
+            if form.submit.data == 'reject':
+                confirmreport = Report.query.filter_by(id=form.id_report.data).first()
+                db.session.delete(confirmreport)
+                db.session.commit()
+        return render_template('admin.html', guser=g.user, reports=reports, form=form)
+    else:
+        return render_template('404.html', title='404'), 404
