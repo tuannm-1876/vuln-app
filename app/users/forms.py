@@ -116,3 +116,20 @@ class PostStatus(Form):
             return False
         else:
             return True
+
+class CheckReport(Form):
+    id_report = IntegerField('',  [
+        validators.Required('Error')
+    ])
+    submit = TextField('text',  [
+        validators.DataRequired(message=None)
+    ])
+
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+
+    def validate(self):
+        if not Form.validate(self):
+            return False
+        else:
+            return True
