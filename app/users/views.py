@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, request, Blueprint, flash, g, make_response
 from flask_login import login_user, logout_user, login_required, current_user
-from app.users.forms import LoginForm, SignupForm, ReportForm
+from app.users.forms import LoginForm, SignupForm, ReportForm, PostStatus, Content_report
 from app.users.models import Users, Posts, Likes, Follow, Report
 from flask_sqlalchemy import SQLAlchemy
 from app import app, db, lm
@@ -12,13 +12,30 @@ def welcome():
     return redirect(url_for('index'))
 
 
-@app.route('/index', methods=['GET'])
+@app.route('/index', methods=['GET', 'POST'])
 def index():
     if g.user is not None and g.user.is_authenticated:
         posts = Posts.query.filter_by().all()
         user_id = {}
-        users = Users.query.filter_by().all()
-        return render_template('index.html', posts=posts, )
+        usersList = Posts.query.join(Users, Users.id == Posts.user_id).add_columns(
+            Users.username, Users.name, Users.avatar, Users.id).filter(Users.id == Posts.user_id).order_by(Posts.updated_at.desc()).all()
+        print (usersList)
+        form = PostStatus()
+        if form.validate_on_submit():
+            new_post = Posts(g.user.id, form.poststatus.data, form.status.data)
+            db.session.add(new_post)
+            db.session.commit()
+        liked = {}
+        for post in usersList:
+            postid = post[0].id
+            liked[postid] = len(Likes.query.filter_by(post_id=postid).all())
+        checkfriend = {}
+        for follow in usersList:
+            userid = follow[0].user_id
+            if userid != g.user.id:
+                checkfriend[userid] = Follow.query.filter_by(user_id=g.user.id, user_friend_id=userid).first()
+                print (checkfriend[userid])
+        return render_template('index.html', usersList=usersList, guser = g.user, form=form, liked=liked, checkfriend=checkfriend)
     else:
         return render_template('index.html')
 
@@ -85,7 +102,9 @@ def profile(username=None):
             list_username_follow[i] = Users.query.filter_by(
                 id=list_follow.user_id).first()
             i+=1
-        # users_follow = Users.query.filter_by(id=).all()
+        # likeds = db.session.execute(
+        #     'SELECT * FROM likes WHERE post_id = 1;')
+        # print (likeds.rowcount)
         liked = {}
         for post in posts:
             liked[post.id] = len(Likes.query.filter_by(post_id=post.id).all())
