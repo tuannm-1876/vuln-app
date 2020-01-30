@@ -10,15 +10,7 @@ INLINE = "'unsafe-inline'"
 talisman = Talisman(
     app,
     content_security_policy={
-        'img-src': '*',
-        'script-src': [
-            SELF,
-            INLINE,
-            '*.bootstrapcdn.com',
-            'cdnjs.cloudflare.com',
-            'ajax.googleapis.com',
-            'code.jquery.com',
-        ]
+        'img-src': '*'
     },
     content_security_policy_nonce_in=['script-src', 'style-src'],
     strict_transport_security=False,
