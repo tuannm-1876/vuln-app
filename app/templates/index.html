@@ -1,25 +1,10 @@
 {% extends "base.html" %}
-{% block navbar %}
-<div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
-  <h5 class="my-0 mr-md-auto font-weight-normal">Cyber Links</h5>
-  {% if guser %}
-  <nav class="my-2 my-md-0 mr-md-3">
-    <img class="rounded-circle" src="{{ url_for('static', filename=guser.avatar)}}" alt="" style="height: 32px;">
-    <a class="p-2 text-dark" href="{{ url_for('users.profile', username=guser.username)}}">{{ guser.username }}</a>
-  </nav>
-  <a class="btn btn-outline-primary" href="{{ url_for('users.logout')}}">Sign out</a>
-  {% else %}
-  <a class="btn btn-outline-primary" href="{{ url_for('users.login')}}">Sign in</a>
-  <a class="btn btn-outline-primary" href="{{ url_for('users.signup')}}">Sign up</a>
-  {% endif %}
-</div>
-{% endblock %}
 {% block body %}
 <main role="main" class="container">
   {% if guser %}
   <form class="mt-2 mt-md-0" method="POST">
     <input class="form-control mr-sm-2" name="poststatus" type="text" placeholder="New link..." aria-label="Search">
-    <button class="btn btn-success my-2" type="submit">Post</button>
+    <button id="posttweet" class="btn btn-success my-2" type="submit">Post</button>
     <select name="status" id="inputGroupSelect01">
       <option value="0">Public</option>
       <option value="1">Private</option>
@@ -39,7 +24,7 @@
             href="{{ url_for('users.profile', username=post.username)}}"><span>{{ post.username }}</span></a></span>
         {% if checkreport[post[0].id] != None %}
           <span style="color: red;">Post Spam<span></span>
-        {% elif post[0].isPrivate == 1 and post.username != guser.username and checkfriend[post.id] == None %}
+        {% elif post[0].isPrivate == 1 and post.username != guser.username and checkfriend[post.id].status != 1 %}
           <span style="color: yellowgreen;">Post Private<span>
         {% else %}
           {{ post[0].content }}

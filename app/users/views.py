@@ -4,6 +4,7 @@ from app.users.forms import LoginForm, SignupForm, ReportForm, PostStatus, Conte
 from app.users.models import Users, Posts, Likes, Follow, Report
 from flask_sqlalchemy import SQLAlchemy
 from app import app, db, lm
+
 user_module = Blueprint('users', __name__)
 
 
@@ -17,9 +18,9 @@ def index():
     if g.user is not None and g.user.is_authenticated:
         posts = Posts.query.filter_by().all()
         user_id = {}
+        page = request.args.get('page', 1, type=int)
         usersList = Posts.query.join(Users, Users.id == Posts.user_id).add_columns(
-            Users.username, Users.name, Users.avatar, Users.id).filter(Users.id == Posts.user_id).order_by(Posts.updated_at.desc()).all()
-        print (usersList)
+            Users.username, Users.name, Users.avatar, Users.id).filter(Users.id == Posts.user_id).order_by(Posts.updated_at.desc()).paginate(1, 20, False).items
         form = PostStatus()
         if form.validate_on_submit():
             new_post = Posts(g.user.id, form.poststatus.data, form.status.data)
@@ -126,7 +127,6 @@ def profile(username=None):
 def like_post(id_post=None):
     if g.user is not None and g.user.is_authenticated:
         check = Likes.query.filter_by(post_id=id_post, user_id=g.user.id).first()
-        print (check)
         if not check:
             like = Likes(id_post, g.user.id)
             db.session.add(like)
@@ -164,8 +164,6 @@ def confirm_follow(username=None):
         user = Users.query.filter_by(username=username).first()
         check = Follow.query.filter_by(
             user_id=user.id, user_friend_id=g.user.id).first()
-        print (check.id)
-        print (check)
         if check:
             check.status = 1
             db.session.commit()
@@ -184,9 +182,7 @@ def report(post_id=None):
             if check:
                 return 'Da report truoc do'
             else:
-                print (form.report.data)
                 report_post = Report(post_id, g.user.id, form.report.data)
-                print (report_post)
                 db.session.add(report_post)
                 db.session.commit()
                 return redirect(url_for('index'))

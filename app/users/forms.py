@@ -21,11 +21,15 @@ class SignupForm(Form):
         validators.Required('Please enter your username.'),
         validators.Length(
             max=30, message='Username is at most 30 characters.'),
+        validators.Regexp(
+            '^\w+$', message="Username must contain only letters numbers or underscore"),
     ])
     name = TextField('Name',  [
         validators.Required('Please enter your name.'),
         validators.Length(
             max=30, message='Name is at most 30 characters.'),
+        validators.Regexp(
+            '^\w+$', message="Name must contain only letters numbers or underscore"),
     ])
     password = PasswordField('Password', [
         validators.Required('Please enter a password.'),
@@ -102,7 +106,8 @@ class ReportForm(Form):
             return False
 class PostStatus(Form):
     poststatus = TextField('text',  [
-        validators.DataRequired(message=None)
+        validators.Length(min=1, max=150, message='Post not emply'),
+        validators.DataRequired(message='Something went wrong')
     ])
     status = IntegerField('',  [
         validators.NumberRange(min=0, max=1, message='Something went wrong')
