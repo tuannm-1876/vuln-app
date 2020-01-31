@@ -5,7 +5,10 @@ DateTime==4.3
 decorator==4.4.1
 Flask==1.1.1
 Flask-Login==0.4.1
+flask-paginate==0.5.5
+Flask-SeaSurf==0.2.2
 Flask-SQLAlchemy==2.4.1
+flask-talisman==0.7.0
 Flask-WTF==0.14.2
 idna==2.8
 infinity==1.4

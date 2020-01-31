@@ -3,8 +3,10 @@ import requests
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_talisman import Talisman
+from flask_seasurf import SeaSurf
 
 app = Flask(__name__)
+csrf = SeaSurf(app)
 SELF = "'self'"
 INLINE = "'unsafe-inline'"
 talisman = Talisman(
@@ -14,7 +16,8 @@ talisman = Talisman(
     },
     content_security_policy_nonce_in=['script-src', 'style-src'],
     strict_transport_security=False,
-    force_https = False
+    force_https = False,
+    session_cookie_secure = False
 )
 app._static_folder = 'static/'
 app.config.from_object('config')

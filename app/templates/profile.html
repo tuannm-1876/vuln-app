@@ -33,10 +33,10 @@
                     <div class="{{list_username_follow[i].username}} d-flex flex-row mb-2 justify-content-between">
                         <div class="text-left col-6">{{ list_username_follow[i].name }}
                             @{{ list_username_follow[i].username }}</div>
-                        <div class="col-6 d-flex flex-row justify-content-end">
+                        <div class="{{ list_username_follow[i].username }}-approve col-6 d-flex flex-row justify-content-end">
                             <a class="btn-sm mr-2 btn-primary btn-approve"
                                 href="{{ url_for('users.confirm_follow', username=list_username_follow[i].username) }}">Approve</a>
-                            <a class="btn-sm btn-danger" href="#">Reject</a>
+                            <a class="{{ list_username_follow[i].username }}-reject btn-sm btn-danger" href="#">Reject</a>
                         </div>
                     </div>
                     {% endfor %}
@@ -99,13 +99,25 @@
         });
         {% if list_username_follow %}
         {% for i in list_username_follow %}
-        $('.{{list_username_follow[i].username}}').click(e => {
+        $('.{{ list_username_follow[i].username }}-approve').click(e => {
             e.preventDefault();
             $.ajax({
                 
                 url: `/users/follow/{{ list_username_follow[i].username }}/approve`,
                 success: function (result) {
                     alert('Chấp nhận kết bạn thành công');
+                    $('.{{list_username_follow[i].username}}').remove();
+                }
+                
+            });
+        });
+        $('.{{ list_username_follow[i].username }}-reject').click(e => {
+            e.preventDefault();
+            $.ajax({
+                
+                url: `/users/follow/{{ list_username_follow[i].username }}/reject`,
+                success: function (result) {
+                    alert('Đã bỏ thành công');
                     $('.{{list_username_follow[i].username}}').remove();
                 }
                 
